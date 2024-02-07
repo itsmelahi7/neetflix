@@ -956,7 +956,11 @@ function saveStudentData() {
     console.log("student data saved in locale");
 }
 function getStudentData() {
-    student_data_array_me = getDataFromLocale("student_data_array_me");
+    var data = getDataFromLocale("student_data_array_me");
+    if (!data) {
+        student_data_array_me = data;
+    }
+
     console.log("student data retrieved from locale");
 }
 function saveDataInLocale(key, array) {
