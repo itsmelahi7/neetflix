@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>NEET FLIX</title>
+        <link href="v6.4.2/css/all-1.css" rel="stylesheet" />
+        <link href="path/to/node_modules/normalize.css/normalize.css" rel="stylesheet" />
+        <!-- blueprint-icons.css file must be included alongside blueprint.css! -->
+        <link href="path/to/node_modules/@blueprintjs/icons/lib/css/blueprint-icons.css" rel="stylesheet" />
+        <link href="path/to/node_modules/@blueprintjs/core/lib/css/blueprint.css" rel="stylesheet" />
+        <!-- add other blueprint-*.css files here -->
+        <link href="styles.css" rel="stylesheet" />
+        <link href="stylesroam.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="container">
+            <div class="head">
+                <div class="app-logo me-cp">
+                    <span>NEET FLIX</span>
+                    <i class="fa-regular fa-stethoscope me-cp"></i>
+                </div>
+                <div class="tabs">
+                    <i class="fa-regular fa-image image-icon hide"></i>
+                    <i class="fa-regular fa-square-question que-sec-icon me-cp"></i>
+                    <i class="fa-regular fa-chart-network hide me-cp"></i>
+                    <i class="fa-regular fa-list-radio toc-icon me-cp"></i>
+                </div>
+            </div>
+            <div class="main-page">
+                <div class="practice-que-sec hide">
+                    <div class="top">
+                        <div class="filter-sec hide me-cp me-d-flex">
+                            <i class="fa-regular fa-filter"></i>
+                            <input type="text" class="filter-tags" placeholder="Filter tags" />
+                        </div>
+                        <div class="filter tags"></div>
+                    </div>
+                    <div class="que-section">
+                        <span class="question">This is default question text</span>
+                    </div>
+
+                    <div class="linked-que"></div>
+                </div>
+                <div class="home-page">
+                    <h1 class="app-title">NEET FLIX</h1>
+                </div>
+                <div class="main-page-content"></div>
+            </div>
+        </div>
+
+        <script type="module" src="script.mjs"></script>
+        <script src="script_.js"></script>
+    </body>
+</html>
