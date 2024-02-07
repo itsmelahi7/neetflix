@@ -957,7 +957,7 @@ function saveStudentData() {
 }
 function getStudentData() {
     var data = getDataFromLocale("student_data_array_me");
-    if (!data) {
+    if (data) {
         student_data_array_me = data;
     }
 
