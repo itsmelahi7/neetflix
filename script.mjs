@@ -127,6 +127,8 @@ async function initialLoading() {
 
     // load student_data
     getStudentData();
+    if (!student_data_array_me.questions) student_data_array_me.questions = [];
+    if (!student_data_array_me.images) student_data_array_me.images = [];
     console.log("me: student data from locale retrieved");
     // load all tags
     roam_data_array_me.questions.forEach((que) => {
@@ -473,6 +475,7 @@ function addPageBlocks(block, target) {
         uploadAndAddImage(div_main);
     });
     var images = [];
+
     student_data_array_me.images.forEach((image) => {
         if (image.linked_blocks.includes(block.uid)) images.push(image);
     });
