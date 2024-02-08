@@ -23,6 +23,11 @@
     font-family: "sans-serif";
 }
 
+.home-page {
+    background-color: black;
+
+}
+
 div,
 span {
     font-size: var(--me-font-size);
@@ -145,7 +150,7 @@ body .container .head .app-logo::before {
     margin-top: 15px;
 }
 
-.me-block-main.me-focus-block div.add-sec {
+.me-block-main:has(.me-focus-block) div.add-sec {
     display: block;
 }
 
@@ -190,7 +195,7 @@ body .container .head .app-logo::before {
     height: auto;
 }
 
-div.me-focus-block {
+.me-focus-block {
     background-color: #fff3d3;
     border-left: 3px solid orange;
     padding: 10px;
@@ -592,6 +597,10 @@ button.me-btn {
     color: white;
     font-size: 40px;
     cursor: pointer;
+    background-color: #ababab;
+    border-radius: 35px;
+    padding: 7px 14px;
+    ;
 }
 
 .me-image-overlay .prev,
@@ -600,12 +609,14 @@ button.me-btn {
     top: 50%;
     width: auto;
     margin-top: -30px;
-    padding: 16px;
+    padding: 17px 22px;
     color: white;
     font-weight: bold;
     font-size: 35px;
     cursor: pointer;
     z-index: 9999;
+    background-color: #ababab;
+    border-radius: 35px;
 }
 
 .me-image-overlay .prev {
@@ -614,4 +625,64 @@ button.me-btn {
 
 .me-image-overlay .next {
     right: 20px;
+}
+
+.all-images {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.all-images .image {
+    width: 70%;
+}
+
+.all-images img {
+    width: 100%;
+}
+
+.all-images .chapter .head {
+    margin: 15px;
+    padding: 20px;
+    box-shadow: 0 1px 10px #b7daf4;
+    min-width: 500px;
+    justify-content: center;
+}
+
+.chapter-name {
+    font-size: 1.3em;
+    color: #121792;
+}
+
+.chapter .num {
+    background-color: #4444aa;
+    font-size: 1.3em;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 17px;
+    margin-left: 21px;
+}
+
+.chapter .user-images {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.all-images>.header .text {
+    font-size: 2em;
+    margin: 15px;
+    padding: 10px;
+    font-weight: 800;
+    color: #3535b3;
+}
+
+.all-images>.header .refresh-icon {
+    font-size: 1.5em;
+    color: gray;
+    cursor: pointer;
 }

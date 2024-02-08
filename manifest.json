@@ -1,0 +1,10 @@
+{
+  "name": "Neet Flix",
+  "short_name": "neetflix",
+  "theme_color": "#77bbf2",
+  "background_color": "#d3e7f7",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/https://neetflix.life"
+}

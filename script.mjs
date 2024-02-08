@@ -115,6 +115,8 @@ async function initialLoading() {
     if (data) {
         pages_data = data;
     }
+    debugger;
+    console.log("me: pages data loaded: Pages:" + pages_data.pages_uids.length);
     //get question data from git
 
     var filename = "neet_roam_data_questions.json";
@@ -166,7 +168,7 @@ async function initialLoading() {
         if (ques_sec.classList.contains("hide")) {
             displayInMainPage("questions");
         } else {
-            displayInMainPage("roam-page");
+            displayInMainPage("me-page");
         }
     });
     console.log("me: initial loading is completed");
@@ -178,9 +180,24 @@ function setEventListnersForQuestionSection() {
     var toc_icon = document.querySelector(".head .toc-icon");
     toc_icon.addEventListener("click", getTableOfContentForCurrentPage);
 
+    var image_icon = document.querySelector(".head .image-icon");
+    image_icon.addEventListener("click", () => {
+        var d = document.querySelector(".all-images .all-images-list");
+        if (!d.innerHTML) showAllImageNotes();
+        displayInMainPage("all-images");
+    });
+
     var filter_tag_input = document.querySelector(".practice-que-sec .filter-sec input ");
     filter_tag_input.addEventListener("focus", (event) => {
         setAutoComplete(event, all_tags, "que-filter-tags");
+    });
+
+    document.querySelector(".all-images .refresh-icon").addEventListener("click", () => {
+        debugger;
+        var d = document.querySelector(".all-images .all-images-list");
+        d.innerHTML = "";
+        showAllImageNotes();
+        displayInMainPage("all-images");
     });
 }
 
@@ -239,7 +256,7 @@ function getTableOfContentHtmlTemplate() {
         </div>
     </div>
     `;
-    document.querySelector(".main-page-content").append(div);
+    document.querySelector(".me-page").append(div);
     return div;
 }
 function getPageBlocks(uid) {
@@ -392,6 +409,12 @@ function getFilteredQuestions(tags) {
 }
 
 function openRoamPage(page_uid) {
+    var x = document.querySelector(".me-page-title");
+    if (x && x.id == page_uid) {
+        displayInMainPage("me-page");
+        return;
+    }
+
     var page = "";
     var pages = pages_data.pages;
     for (var i = 0; i < pages.length; i++) {
@@ -400,41 +423,20 @@ function openRoamPage(page_uid) {
             break;
         }
     }
-    var b = document.querySelector(".me-page");
-    if (b) b.remove();
-    var page_div = document.createElement("div");
-    page_div.className = "me-page";
-    document.querySelector(".main-page-content").appendChild(page_div);
+    var me_page = document.querySelector(".me-page");
+    me_page.innerHTML = "";
 
     var span = document.createElement("span");
     span.className = "me-page-title";
     span.id = page.uid;
     span.textContent = page.title;
-    page_div.appendChild(span);
+    me_page.appendChild(span);
 
     page.blocks.forEach((block) => {
-        addPageBlocks(block, page_div);
+        addPageBlocks(block, me_page);
     });
 
-    displayInMainPage("roam-page");
-    return;
-    page.blocks.forEach((block) => {
-        var div = document.createElement("div");
-        div.className = "me-block";
-        div.id = block.uid;
-        page_div.appendChild(div);
-
-        var span = document.createElement("span");
-        span.className = "me-block";
-        //span.id = block.uid;
-        var string = block.string;
-        if (string.indexOf("#.me-") != -1 || string.indexOf("#.hh") != -1) {
-            span.classList.add("heading");
-            string = string.substring(0, string.indexOf("#"));
-        }
-        span.innerHTML = convertTextToHTML(string);
-        div.appendChild(span);
-    });
+    displayInMainPage("me-page");
 }
 function addPageBlocks(block, target) {
     var div = document.createElement("div");
@@ -445,14 +447,6 @@ function addPageBlocks(block, target) {
     div_main.className = "me-block-main me-d-flex-c";
     div_main.id = block.uid;
     div.appendChild(div_main);
-    div_main.addEventListener("click", (e) => {
-        var x = document.querySelector(".me-focus-block");
-        if (x && x != e.target) x.classList.remove("me-focus-block");
-        div_main.classList.add("me-focus-block");
-        document.addEventListener("click", (e) => {
-            if (!div_main.contains(e.target)) div_main.classList.remove("me-focus-block");
-        });
-    });
 
     var span = document.createElement("span");
     var string = block.string;
@@ -462,6 +456,15 @@ function addPageBlocks(block, target) {
     }
     span.innerHTML = convertTextToHTML(string);
     div_main.appendChild(span);
+    span.addEventListener("click", (e) => {
+        debugger;
+        var x = document.querySelector(".me-focus-block");
+        if (x && x != e.target) x.classList.remove("me-focus-block");
+        span.classList.add("me-focus-block");
+        document.addEventListener("click", (e) => {
+            if (!div_main.contains(e.target)) span.classList.remove("me-focus-block");
+        });
+    });
 
     var div_add = document.createElement("div");
     div_add.className = "add-sec me-d-flex";
@@ -537,7 +540,8 @@ function addImageElementInBlock(div, img) {
     if (!div_1) {
         div_1 = document.createElement("div");
         div_1.className = "user-images me-cp";
-        div.insertBefore(div_1, div.lastElementChild);
+        //div.insertBefore(div_1, div.lastElementChild);
+        div.appendChild(div_1);
         div_1.innerHTML = `
         <div class="head">
             <span class="text">User Images</span>
@@ -564,13 +568,15 @@ function addImageElementInBlock(div, img) {
     div_1.querySelector(".images").appendChild(div_2);
     div_1.querySelector(".head .num").textContent = div_1.querySelectorAll("img").length;
     div_2.querySelector("img").addEventListener("click", (e) => {
-        showImagesInOverlay(e);
+        showImagesInOverlay(e, "page-images");
     });
 }
 
-function showImagesInOverlay(e) {
+function showImagesInOverlay(e, type) {
     var div = getImageOverlayTemplate();
-    var all_user_images = document.querySelectorAll(".me-page .user-images img");
+    var all_user_images;
+    if (type == "all-images") all_user_images = document.querySelectorAll(".all-images .user-images img");
+    if (type == "page-images") all_user_images = document.querySelectorAll(".me-page .user-images img");
     var curr_img_index = 0;
     all_user_images.forEach((img, index) => {
         if (img == e.target) curr_img_index = index;
@@ -590,8 +596,67 @@ function showImagesInOverlay(e) {
     });
 }
 function displayImageInOverlay(div, index, all_user_images) {
-    debugger;
     div.querySelector("img").src = all_user_images[index].src;
+}
+
+var global_temp_arr = [];
+
+function showAllImageNotes(type) {
+    var div = document.querySelector(".all-images-list");
+    var all_images = [];
+    var pages = pages_data.pages;
+    pages.forEach((page) => {
+        var div1 = document.createElement("div");
+        div1.className = "chapter me-d-flex-c";
+        div1.innerHTML = `
+         <div class="head me-cp me-d-flex">
+            <span class="chapter-name">${page.title}</span>
+            <span class="num"></span>
+        </div>
+        <div class="user-images hide"></div>
+        `;
+        var blocks = page.blocks;
+        all_images = [];
+        blocks.forEach((block) => {
+            all_images = checkImageInBlock(block, all_images);
+        });
+        if (all_images.length) {
+            div.appendChild(div1);
+
+            div1.children[0].addEventListener("click", () => {
+                div1.children[1].classList.toggle("hide");
+            });
+            div1.querySelector(".num").textContent = all_images.length;
+
+            all_images.forEach((img) => {
+                var div2 = document.createElement("div");
+                div2.className = "image";
+                div2.id = img.id;
+                div2.innerHTML = `
+        <img src="${img.url}" alt="">
+        `;
+                div1.children[1].appendChild(div2);
+                div2.children[0].addEventListener("click", (e) => {
+                    showImagesInOverlay(e, "all-images");
+                });
+            });
+        }
+    });
+
+    displayInMainPage("me-page");
+}
+function checkImageInBlock(block, all_images) {
+    var uid = block.uid;
+    student_data_array_me.images.forEach((image) => {
+        if (image.linked_blocks.includes(uid)) all_images.push(image);
+    });
+    var children = block.children;
+    if (children) {
+        children.forEach((block) => {
+            all_images = checkImageInBlock(block, all_images);
+        });
+    }
+    return all_images;
 }
 
 function displayInMainPage(arg) {
@@ -602,8 +667,10 @@ function displayInMainPage(arg) {
         document.querySelector(".main-page .home-page").classList.remove("hide");
     } else if (arg == "questions") {
         document.querySelector(".main-page .practice-que-sec").classList.remove("hide");
-    } else if ("roam-page") {
-        document.querySelector(".main-page .main-page-content").classList.remove("hide");
+    } else if (arg == "me-page") {
+        document.querySelector(".main-page .me-page").classList.remove("hide");
+    } else if (arg == "all-images") {
+        document.querySelector(".main-page .all-images").classList.remove("hide");
     }
 }
 displayInMainPage("home");
@@ -798,10 +865,12 @@ function addLinkedQuestionSpan(que, target) {
 }
 
 function openAndScrollToBlock(page_uid, block_uid) {
-    openRoamPage(page_uid);
+    var x = document.querySelector(".me-page-title");
+    if (!x || x.id != page_uid) openRoamPage(page_uid);
+
+    displayInMainPage("me-page");
     var div = document.querySelector(`div[id="${block_uid}"]`);
-    displayInMainPage("roam-page");
-    div.classList.add("me-focus-block");
+    div.children[0].classList.add("me-focus-block");
     div.scrollIntoView({ behavior: "smooth" });
 
     return;
