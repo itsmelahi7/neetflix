@@ -125,6 +125,12 @@ body .container .head .app-logo::before {
     overflow-y: scroll;
 }
 
+.mobile .practice-que-sec {
+    margin: 0px;
+    box-shadow: none;
+    border-radius: 0px;
+}
+
 .practice-que-sec>* {
     padding: 15px;
 }
@@ -136,14 +142,22 @@ body .container .head .app-logo::before {
     overflow-y: scroll;
 }
 
+.mobile .me-page {
+    padding: 10px;
+}
+
 .me-page span.me-page-title {
     font-size: 1.5em;
     font-weight: 800;
     margin: 20px 0px;
     text-align: center;
-
     display: block;
 }
+
+.mobile .me-page span.me-page-title {
+    text-align: left;
+}
+
 
 .me-block-main div.add-sec {
     display: none;
@@ -645,10 +659,10 @@ button.me-btn {
     color: white;
     font-size: 40px;
     cursor: pointer;
-    background-color: #ababab;
+    background-color: #e3e3e357;
     border-radius: 35px;
     padding: 7px 14px;
-    ;
+
 }
 
 .me-image-overlay .prev,
@@ -663,7 +677,7 @@ button.me-btn {
     font-size: 35px;
     cursor: pointer;
     z-index: 9999;
-    background-color: #ababab;
+    background-color: #e3e3e357;
     border-radius: 35px;
 }
 
@@ -696,8 +710,13 @@ button.me-btn {
     margin: 15px;
     padding: 20px;
     box-shadow: 0 1px 10px #b7daf4;
-    min-width: 500px;
+    min-width: min(500px, 90%);
     justify-content: center;
+}
+
+.mobile .all-images .chapter .head {
+    padding: 5px 10px;
+    display: inline;
 }
 
 .all-images .chapter-name {
@@ -713,6 +732,16 @@ button.me-btn {
     border-radius: 6px;
     margin-left: 21px;
     border: 2px solid #4444aa;
+    color: #4444aa;
+}
+
+.mobile .all-images .chapter .num {
+    font-size: 1em;
+
+    padding: 5px;
+    border-radius: 0px;
+    margin-left: 21px;
+    border: 0px solid #4444aa;
     color: #4444aa;
 }
 
@@ -753,7 +782,7 @@ button.me-btn {
     border-radius: 4px;
     background-color: white;
     padding: 15px;
-    min-width: 500px;
+    min-width: min(500px, 80%);
     margin: 10px 0px;
 }
 
@@ -820,5 +849,5 @@ button.me-btn {
     margin: 10px;
     padding: 10px;
     text-align: justify;
-    width: 600px;
+    width: min(600px, 90%);
 }

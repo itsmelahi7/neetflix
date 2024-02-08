@@ -117,7 +117,7 @@ async function initialLoading() {
     if (data) {
         pages_data = data;
     }
-    debugger;
+
     console.log("me: pages data loaded: Pages:" + pages_data.pages_uids.length);
     //get question data from git
 
@@ -129,6 +129,11 @@ async function initialLoading() {
     }
     console.log("me: pages and question data loaded");
 
+    if (window.innerWidth < 700) {
+        document.body.classList.add("mobile");
+    } else {
+        document.body.classList.remove("mobile");
+    }
     // load student_data
     getStudentData();
     if (!student_data_array_me.questions) student_data_array_me.questions = [];
@@ -196,7 +201,6 @@ function setEventListnersForQuestionSection() {
     });
 
     document.querySelector(".all-images .refresh-icon").addEventListener("click", () => {
-        debugger;
         var d = document.querySelector(".all-images .all-images-list");
         d.innerHTML = "";
         showAllImageNotes();
@@ -301,7 +305,11 @@ function loadAllNCERTChapters() {
             var x = div.querySelector(".active");
             if (x) x.classList.remove("active");
             span.classList.add("active");
-            openRoamPage(page.uid);
+            var x = openRoamPage(page.uid);
+
+            if (x) return;
+            var x = document.querySelector(".me-page .me-page-title");
+            x.scrollIntoView({ behavior: "smooth" });
         });
     });
 }
@@ -329,7 +337,7 @@ function loadAllPYQs() {
     });
     years[0] = 2018;
     years.sort((a, b) => a - b);
-    debugger;
+
     years.forEach((year) => {
         var span = document.createElement("span");
         span.className = "pyq-year item";
@@ -340,7 +348,7 @@ function loadAllPYQs() {
             var x = div.querySelector(".active");
             if (x) x.classList.remove("active");
             span.classList.add("active");
-            debugger;
+
             openPYQs(year);
         });
     });
@@ -401,7 +409,7 @@ function loadchapterWiseMCQs() {
 
     //years[0] = 2018;
     //years.sort((a, b) => a - b);
-    debugger;
+
     pages_uids.forEach((pages_uid) => {
         var title = getPageTitle(pages_uid);
         var span = document.createElement("span");
@@ -413,7 +421,7 @@ function loadchapterWiseMCQs() {
             var x = div.querySelector(".active");
             if (x) x.classList.remove("active");
             span.classList.add("active");
-            debugger;
+
             openChapterMCQs(pages_uid);
         });
     });
@@ -649,7 +657,7 @@ function openRoamPage(page_uid) {
     var x = document.querySelector(".me-page-title");
     if (x && x.id == page_uid) {
         displayInMainPage("me-page");
-        return;
+        return "same";
     }
 
     var page = "";
@@ -672,8 +680,8 @@ function openRoamPage(page_uid) {
     page.blocks.forEach((block) => {
         addPageBlocks(block, me_page);
     });
-
     displayInMainPage("me-page");
+    return null;
 }
 function addPageBlocks(block, target) {
     var div = document.createElement("div");
@@ -694,7 +702,6 @@ function addPageBlocks(block, target) {
     span.innerHTML = convertTextToHTML(string);
     div_main.appendChild(span);
     span.addEventListener("click", (e) => {
-        debugger;
         var x = document.querySelector(".me-focus-block");
         if (x && x != e.target) x.classList.remove("me-focus-block");
         span.classList.add("me-focus-block");
