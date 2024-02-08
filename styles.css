@@ -851,3 +851,9 @@ button.me-btn {
     text-align: justify;
     width: min(600px, 90%);
 }
+
+
+
+.section>.head .arrow-icon {
+    float: right;
+}

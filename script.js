@@ -289,11 +289,20 @@ function loadAllNCERTChapters() {
         <div class="head">
             <i class="fa-light fa-book book-icon icon"></i>
             <span class="text">Biology Chapters</span>
+            <i class="fa-regular fa-angle-down down-icon arrow-icon me-mla"></i>
         </div>
         <div class="chapter-list items hide"></div>
     `;
     div.children[0].addEventListener("click", () => {
-        div.children[1].classList.toggle("hide");
+        //div.children[1].classList.toggle("hide");
+        var items = div.children[1];
+        items.classList.toggle("hide");
+        var head_icon = div.querySelector(".head .arrow-icon");
+        if (items.classList.contains("hide")) {
+            head_icon.className = "fa-regular fa-angle-down down-icon arrow-icon me-mla";
+        } else {
+            head_icon.className = "fa-regular fa-angle-up down-icon arrow-icon me-mla";
+        }
     });
     pages_data.pages.forEach((page) => {
         var span = document.createElement("span");
@@ -323,11 +332,20 @@ function loadAllPYQs() {
         <div class="head">
             <i class="fa-regular fa-seal-question que-icon icon"></i>
             <span class="text">Biology PYQs</span>
+            <i class="fa-regular fa-angle-down down-icon arrow-icon me-mla"></i>
         </div>
         <div class="pyq-list items hide"></div>
     `;
     div.children[0].addEventListener("click", () => {
-        div.children[1].classList.toggle("hide");
+        //div.children[1].classList.toggle("hide");
+        var items = div.children[1];
+        items.classList.toggle("hide");
+        var head_icon = div.querySelector(".head .arrow-icon");
+        if (items.classList.contains("hide")) {
+            head_icon.className = "fa-regular fa-angle-down down-icon arrow-icon me-mla";
+        } else {
+            head_icon.className = "fa-regular fa-angle-up down-icon arrow-icon me-mla";
+        }
     });
     var years = [];
     roam_data_array_me.questions.forEach((que) => {
@@ -394,11 +412,19 @@ function loadchapterWiseMCQs() {
         <div class="head">
             <i class="fa-regular fa-seal-question que-icon icon"></i>
             <span class="text">Chapter Wise MCQs</span>
+            <i class="fa-regular fa-angle-down down-icon arrow-icon me-mla"></i>
         </div>
         <div class="cw-mcq-list items hide"></div>
     `;
     div.children[0].addEventListener("click", () => {
-        div.children[1].classList.toggle("hide");
+        var items = div.children[1];
+        items.classList.toggle("hide");
+        var head_icon = div.querySelector(".head .arrow-icon");
+        if (items.classList.contains("hide")) {
+            head_icon.className = "fa-regular fa-angle-down down-icon arrow-icon me-mla";
+        } else {
+            head_icon.className = "fa-regular fa-angle-up down-icon arrow-icon me-mla";
+        }
     });
     var pages_uids = [];
     roam_data_array_me.questions.forEach((que) => {
@@ -469,11 +495,20 @@ function loadAboutMe() {
         <div class="head">
             <i class="fa-regular fa-person person-icon icon"></i>
             <span class="text">About Me</span>
+            <i class="fa-regular fa-angle-down down-icon arrow-icon me-mla"></i>
         </div>
         <div class="about-me items hide"></div>
     `;
     div.children[0].addEventListener("click", () => {
-        div.children[1].classList.toggle("hide");
+        //div.children[1].classList.toggle("hide");
+        var items = div.children[1];
+        items.classList.toggle("hide");
+        var head_icon = div.querySelector(".head .arrow-icon");
+        if (items.classList.contains("hide")) {
+            head_icon.className = "fa-regular fa-angle-down down-icon arrow-icon me-mla";
+        } else {
+            head_icon.className = "fa-regular fa-angle-up down-icon arrow-icon me-mla";
+        }
     });
     div.children[1].innerHTML = `
     
