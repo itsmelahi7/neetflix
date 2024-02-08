@@ -1,3 +1,93 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js"; // Import Firebase Storage
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+    apiKey: "AIzaSyCv2koOkHrqG_ioHoOU1vuDfI2KPwLNTZM",
+    authDomain: "revise-480317.firebaseapp.com",
+    projectId: "revise-480317",
+    storageBucket: "revise-480317.appspot.com",
+    messagingSenderId: "264373202075",
+    appId: "1:264373202075:web:faca853c3021e78db36a3e",
+    measurementId: "G-2VNZKXQP1Q",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+//firebase.initializeApp(firebaseConfig);
+//database = firebase.database();
+// Get a reference to the Firebase Storage
+const storage = getStorage(app);
+
+//export function uploadImage() {
+export function uploadImage() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        popupAlert("Image is loading...", true);
+        //interval_save_image = setInterval(saveImage, 1000);
+        if (file) {
+            const storageRef = ref(storage, `images/${file.name}`);
+            const uploadTask = uploadBytes(storageRef, file);
+
+            uploadTask
+                .then(() => {
+                    // Upload completed successfully, get the download URL
+                    getDownloadURL(storageRef)
+                        .then((downloadURL) => {
+                            console.log("Image uploaded. URL: " + downloadURL);
+                            image_url = downloadURL;
+                            return downloadURL;
+                        })
+                        .catch((error) => {
+                            console.error("Error getting download URL:", error);
+                        });
+                })
+                .catch((error) => {
+                    console.error("Error uploading image:", error);
+                });
+        }
+    };
+
+    input.click();
+}
+
+/// IMPORT
+
+async function getImageURL() {
+    var url = uploadImage();
+}
+var interval_save_image;
+var image_url = "";
+function saveImage() {
+    function saveImage(url) {
+        if (image_url != "") {
+            image_url = "";
+            clearInterval(interval_save_image);
+        }
+    }
+}
+
+function popupAlert(message, time) {
+    var div = document.createElement("div");
+    div.className = "me-popup-alert";
+    div.textContent = message;
+    document.body.append(div);
+    if (time) return;
+    setTimeout(function () {
+        div.remove();
+    }, 3000);
+}
+function removePopupAlert() {
+    var x = document.querySelector(".me-popup-alert");
+    if (x) x.remove();
+}
+
 var roam_data_array_me = {};
 
 // GENERAL FUNCTIONS
@@ -27,6 +117,8 @@ async function initialLoading() {
     if (data) {
         pages_data = data;
     }
+    debugger;
+    console.log("me: pages data loaded: Pages:" + pages_data.pages_uids.length);
     //get question data from git
 
     var filename = "neet_roam_data_questions.json";
@@ -39,6 +131,8 @@ async function initialLoading() {
 
     // load student_data
     getStudentData();
+    if (!student_data_array_me.questions) student_data_array_me.questions = [];
+    if (!student_data_array_me.images) student_data_array_me.images = [];
     console.log("me: student data from locale retrieved");
     // load all tags
     roam_data_array_me.questions.forEach((que) => {
@@ -70,30 +164,346 @@ async function initialLoading() {
         displayInMainPage("home");
     });
 
-    document.querySelector(".image-icon").addEventListener("click", (event) => {
-        getImageURL();
-    });
-
     var network_icon = document.querySelector("i.que-sec-icon");
     network_icon.addEventListener("click", (event) => {
         var ques_sec = document.querySelector(".practice-que-sec");
         if (ques_sec.classList.contains("hide")) {
             displayInMainPage("questions");
         } else {
-            displayInMainPage("roam-page");
+            displayInMainPage("me-page");
         }
     });
     console.log("me: initial loading is completed");
     setEventListnersForQuestionSection();
+    loadInHomePage();
 }
 initialLoading();
 
 function setEventListnersForQuestionSection() {
+    var toc_icon = document.querySelector(".head .toc-icon");
+    toc_icon.addEventListener("click", getTableOfContentForCurrentPage);
+
+    var image_icon = document.querySelector(".head .image-icon");
+    image_icon.addEventListener("click", () => {
+        var d = document.querySelector(".all-images .all-images-list");
+        if (!d.innerHTML) showAllImageNotes();
+        displayInMainPage("all-images");
+    });
+
     var filter_tag_input = document.querySelector(".practice-que-sec .filter-sec input ");
     filter_tag_input.addEventListener("focus", (event) => {
         setAutoComplete(event, all_tags, "que-filter-tags");
     });
+
+    document.querySelector(".all-images .refresh-icon").addEventListener("click", () => {
+        debugger;
+        var d = document.querySelector(".all-images .all-images-list");
+        d.innerHTML = "";
+        showAllImageNotes();
+        displayInMainPage("all-images");
+    });
 }
+
+function getTableOfContentForCurrentPage() {
+    var page_uid = document.querySelector(".me-page-title").id;
+    var blocks = getPageBlocks(page_uid);
+
+    var div = getTableOfContentHtmlTemplate();
+    var toC = div.querySelector(".list");
+    div.querySelector(".cross-icon").addEventListener("click", () => {
+        div.remove();
+    });
+    var level = 0;
+    blocks.forEach((block) => {
+        toC = iterateThroughBlocks(block, level, toC);
+    });
+    //div.querySelector(".list").replaceWith(toC);
+    return div;
+}
+
+function iterateThroughBlocks(block, level, div) {
+    var string = block.string;
+    if (string.indexOf("#.me-heading") != -1) {
+        var span = document.createElement("span");
+        span.id = block.uid;
+        string = string.substring(0, string.indexOf("#.me-"));
+        span.textContent = string;
+        span.className = `toc l${level} me-link`;
+        div.appendChild(span);
+        span.addEventListener("click", (event) => {
+            var div = document.querySelector(`div[id="${block.uid}"]`);
+            if (div) div.scrollIntoView({ behavior: "smooth" });
+        });
+    }
+    var children = block.children;
+    if (children) {
+        ++level;
+        children.forEach((child) => {
+            div = iterateThroughBlocks(child, level, div);
+        });
+    }
+    return div;
+}
+
+function getTableOfContentHtmlTemplate() {
+    var div = document.createElement("div");
+    div.className = "table-of-content-section";
+    div.innerHTML = `
+    <div class="table-of-content me-d-flex-c">
+        <div class="top me-d-flex">
+            <span class="me-label">Content List</span>
+            <i class="fa-regular fa-xmark cross-icon me-mla"></i>
+        </div>
+        <div class="list me-d-flex-c">
+            
+        </div>
+    </div>
+    `;
+    document.querySelector(".me-page").append(div);
+    return div;
+}
+function getPageBlocks(uid) {
+    var pages = pages_data.pages;
+    for (var i = 0; i < pages.length; i++) {
+        if (pages[i].uid == uid) return pages[i].blocks;
+    }
+    return null;
+}
+
+function loadInHomePage() {
+    loadAllNCERTChapters();
+    loadAllPYQs();
+    loadchapterWiseMCQs();
+    loadAboutMe();
+}
+function loadAllNCERTChapters() {
+    var div = document.createElement("div");
+    div.className = "ncert-chapters section";
+    document.querySelector(".home-page").appendChild(div);
+
+    div.innerHTML = `
+        <div class="head">
+            <i class="fa-light fa-book book-icon icon"></i>
+            <span class="text">Biology Chapters</span>
+        </div>
+        <div class="chapter-list items hide"></div>
+    `;
+    div.children[0].addEventListener("click", () => {
+        div.children[1].classList.toggle("hide");
+    });
+    pages_data.pages.forEach((page) => {
+        var span = document.createElement("span");
+        span.className = "chapter-name chapter item";
+        span.id = page.uid;
+        span.textContent = page.title;
+        div.children[1].appendChild(span);
+        span.addEventListener("click", () => {
+            var x = div.querySelector(".active");
+            if (x) x.classList.remove("active");
+            span.classList.add("active");
+            openRoamPage(page.uid);
+        });
+    });
+}
+
+function loadAllPYQs() {
+    var div = document.createElement("div");
+    div.className = "pyqs section";
+    document.querySelector(".home-page").appendChild(div);
+
+    div.innerHTML = `
+        <div class="head">
+            <i class="fa-regular fa-seal-question que-icon icon"></i>
+            <span class="text">Biology PYQs</span>
+        </div>
+        <div class="pyq-list items hide"></div>
+    `;
+    div.children[0].addEventListener("click", () => {
+        div.children[1].classList.toggle("hide");
+    });
+    var years = [];
+    roam_data_array_me.questions.forEach((que) => {
+        if (que.year && que.year != "" && !years.includes(que.year)) {
+            years.push(que.year);
+        }
+    });
+    years[0] = 2018;
+    years.sort((a, b) => a - b);
+    debugger;
+    years.forEach((year) => {
+        var span = document.createElement("span");
+        span.className = "pyq-year item";
+        span.id = "";
+        span.textContent = `NEET ${year} PYQs`;
+        div.children[1].appendChild(span);
+        span.addEventListener("click", () => {
+            var x = div.querySelector(".active");
+            if (x) x.classList.remove("active");
+            span.classList.add("active");
+            debugger;
+            openPYQs(year);
+        });
+    });
+}
+function openPYQs(year) {
+    var page = document.querySelector(".me-page");
+    page.innerHTML = "";
+    var all_ques = [];
+    roam_data_array_me.questions.forEach((que) => {
+        if (que.year && que.year == year) all_ques.push(que);
+    });
+    all_ques = sortArrayRandomly(all_ques);
+    var span = document.createElement("span");
+    span.className = "mcq-page-title";
+    span.textContent = `NEET ${year} PYQs`;
+    page.appendChild(span);
+
+    all_ques.forEach((que) => {
+        var div = document.createElement("div");
+        div.className = "mcq me-mcq-block";
+        div.id = que.id;
+        page.appendChild(div);
+
+        var span = document.createElement("span");
+        span.className = "que-text";
+        span.innerHTML = convertTextToHTML(que.question_text);
+        div.appendChild(span);
+
+        var d = getMCQOptionsTemplate(que);
+        d.querySelector(".pyq-year").remove();
+        div.appendChild(d);
+    });
+
+    displayInMainPage("me-page");
+}
+
+function loadchapterWiseMCQs() {
+    var div = document.createElement("div");
+    div.className = "chapter-mcqs section";
+    document.querySelector(".home-page").appendChild(div);
+
+    div.innerHTML = `
+        <div class="head">
+            <i class="fa-regular fa-seal-question que-icon icon"></i>
+            <span class="text">Chapter Wise MCQs</span>
+        </div>
+        <div class="cw-mcq-list items hide"></div>
+    `;
+    div.children[0].addEventListener("click", () => {
+        div.children[1].classList.toggle("hide");
+    });
+    var pages_uids = [];
+    roam_data_array_me.questions.forEach((que) => {
+        if (que.page_uid && que.page_uid != "" && !pages_uids.includes(que.page_uid)) {
+            pages_uids.push(que.page_uid);
+        }
+    });
+
+    //years[0] = 2018;
+    //years.sort((a, b) => a - b);
+    debugger;
+    pages_uids.forEach((pages_uid) => {
+        var title = getPageTitle(pages_uid);
+        var span = document.createElement("span");
+        span.className = "cw-mcq item";
+        span.id = pages_uid;
+        span.textContent = title;
+        div.children[1].appendChild(span);
+        span.addEventListener("click", () => {
+            var x = div.querySelector(".active");
+            if (x) x.classList.remove("active");
+            span.classList.add("active");
+            debugger;
+            openChapterMCQs(pages_uid);
+        });
+    });
+}
+
+function openChapterMCQs(page_uid) {
+    var page = document.querySelector(".me-page");
+    page.innerHTML = "";
+    var all_ques = [];
+    roam_data_array_me.questions.forEach((que) => {
+        if (que.page_uid && que.type != "normal" && que.page_uid == page_uid) all_ques.push(que);
+    });
+    all_ques = sortArrayRandomly(all_ques);
+    var span = document.createElement("span");
+    span.className = "mcq-page-title";
+    span.textContent = "MCQs on " + getPageTitle(page_uid);
+    page.appendChild(span);
+
+    all_ques.forEach((que) => {
+        var div = document.createElement("div");
+        div.className = "mcq me-mcq-block";
+        div.id = que.id;
+        page.appendChild(div);
+
+        var span = document.createElement("span");
+        span.className = "que-text";
+        span.innerHTML = convertTextToHTML(que.question_text);
+        div.appendChild(span);
+
+        var d = getMCQOptionsTemplate(que);
+        var x = d.querySelector(".pyq-year");
+        if (x) x.remove();
+        div.appendChild(d);
+    });
+
+    displayInMainPage("me-page");
+}
+
+function loadAboutMe() {
+    var div = document.createElement("div");
+    div.className = "about-me section";
+    document.querySelector(".home-page").appendChild(div);
+
+    div.innerHTML = `
+        <div class="head">
+            <i class="fa-regular fa-person person-icon icon"></i>
+            <span class="text">About Me</span>
+        </div>
+        <div class="about-me items hide"></div>
+    `;
+    div.children[0].addEventListener("click", () => {
+        div.children[1].classList.toggle("hide");
+    });
+    div.children[1].innerHTML = `
+    
+    <img src="./assets/me.jpg" alt="" />
+    <span class="name">Mehboob Elahi</span>
+    <div class="social-media-links">
+        <a href="https://facebook.com/mehboobelahi05" target="_blank" class="icon facebook"> <img src="./assets/facebook.png" /> </a>
+        <a href="https://instagram.com/mehboobelahi05" target="_blank" class="icon x"><img src="./assets/instagram.png" /></a>
+        <a href="https://twitter.com/mehboobelahi05" target="_blank" class="icon x"><img src="./assets/twitter.png" /></a>
+        <a href="https://www.youtube.com/@mehboobelahi05/featured" target="_blank" class="icon youtube"><img src="./assets/youtube.png" /></a>
+    </div>
+    <span class="text"> Any website level changes are going to update in the app automatically
+We don't charge monthly or yearly. We charge per build.
+App build is not required if you make any changes in your website. App will always be synced with website. Build is required if you want to make change in the app icon , launch screen and all. </span>
+    `;
+}
+
+function getAboutMeHTMLTemplate() {
+    return `
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <div class="image">
+        <img src="./assets/me.jpg" alt="" />
+    </div>
+    <span cla>Mehboob Elahi</span>
+    <div class="row social-media">
+        <a href="https://facebook.com/mehboobelahi05" target="_blank" class="icon facebook"> <img src="./assets/facebook.png" /> </a>
+        <a href="https://instagram.com/mehboobelahi05" target="_blank" class="icon x"><img src="./assets/instagram.png" /></a>
+        <a href="https://twitter.com/mehboobelahi05" target="_blank" class="icon x"><img src="./assets/twitter.png" /></a>
+        <a href="https://www.youtube.com/@mehboobelahi05/featured" target="_blank" class="icon youtube"><img src="./assets/youtube.png" /></a>
+    </div>
+
+    <div class="text">
+        <span class="text"> Any website level changes are going to update in the app automatically
+We don't charge monthly or yearly. We charge per build.
+App build is not required if you make any changes in your website. App will always be synced with website. Build is required if you want to make change in the app icon , launch screen and all.</span>
+    </div>`;
+}
+
 var autocompleteList = document.createElement("div");
 autocompleteList.className = "me-autocomplete-list";
 document.body.append(autocompleteList);
@@ -236,6 +646,12 @@ function getFilteredQuestions(tags) {
 }
 
 function openRoamPage(page_uid) {
+    var x = document.querySelector(".me-page-title");
+    if (x && x.id == page_uid) {
+        displayInMainPage("me-page");
+        return;
+    }
+
     var page = "";
     var pages = pages_data.pages;
     for (var i = 0; i < pages.length; i++) {
@@ -244,41 +660,20 @@ function openRoamPage(page_uid) {
             break;
         }
     }
-    var b = document.querySelector(".me-page");
-    if (b) b.remove();
-    var page_div = document.createElement("div");
-    page_div.className = "me-page";
-    document.querySelector(".main-page-content").appendChild(page_div);
+    var me_page = document.querySelector(".me-page");
+    me_page.innerHTML = "";
 
     var span = document.createElement("span");
     span.className = "me-page-title";
     span.id = page.uid;
     span.textContent = page.title;
-    page_div.appendChild(span);
+    me_page.appendChild(span);
 
     page.blocks.forEach((block) => {
-        addPageBlocks(block, page_div);
+        addPageBlocks(block, me_page);
     });
 
-    displayInMainPage("roam-page");
-    return;
-    page.blocks.forEach((block) => {
-        var div = document.createElement("div");
-        div.className = "me-block";
-        div.id = block.uid;
-        page_div.appendChild(div);
-
-        var span = document.createElement("span");
-        span.className = "me-block";
-        //span.id = block.uid;
-        var string = block.string;
-        if (string.indexOf("#.me-") != -1 || string.indexOf("#.hh") != -1) {
-            span.classList.add("heading");
-            string = string.substring(0, string.indexOf("#"));
-        }
-        span.innerHTML = convertTextToHTML(string);
-        div.appendChild(span);
-    });
+    displayInMainPage("me-page");
 }
 function addPageBlocks(block, target) {
     var div = document.createElement("div");
@@ -298,6 +693,15 @@ function addPageBlocks(block, target) {
     }
     span.innerHTML = convertTextToHTML(string);
     div_main.appendChild(span);
+    span.addEventListener("click", (e) => {
+        debugger;
+        var x = document.querySelector(".me-focus-block");
+        if (x && x != e.target) x.classList.remove("me-focus-block");
+        span.classList.add("me-focus-block");
+        document.addEventListener("click", (e) => {
+            if (!div_main.contains(e.target)) span.classList.remove("me-focus-block");
+        });
+    });
 
     var div_add = document.createElement("div");
     div_add.className = "add-sec me-d-flex";
@@ -310,6 +714,18 @@ function addPageBlocks(block, target) {
     div_add.children[0].addEventListener("click", () => {
         uploadAndAddImage(div_main);
     });
+    var images = [];
+
+    student_data_array_me.images.forEach((image) => {
+        if (image.linked_blocks.includes(block.uid)) images.push(image);
+    });
+
+    if (images.length) {
+        images.forEach((image) => {
+            //loadImagesLinkedToBlock(div_main, image);
+            addImageElementInBlock(div_main, image);
+        });
+    }
 
     if (block.children) {
         var div2 = document.createElement("div");
@@ -345,7 +761,7 @@ async function uploadAndAddImage(div) {
                         linked_blocks: [div.id],
                     };
                     if (!student_data_array_me.images) student_data_array_me.images = [];
-                    student_data_array_me.images.push();
+                    student_data_array_me.images.push(img);
                     saveStudentData();
                     addImageElementInBlock(div, img);
                     input.remove();
@@ -355,24 +771,155 @@ async function uploadAndAddImage(div) {
         }
     }, 1000);
 }
+
 function addImageElementInBlock(div, img) {
-    debugger;
     var div_1 = div.querySelector(".user-images");
     if (!div_1) {
         div_1 = document.createElement("div");
-        div_1.className = "user-iamges";
+        div_1.className = "user-images me-cp";
+        //div.insertBefore(div_1, div.lastElementChild);
         div.appendChild(div_1);
-    }
+        div_1.innerHTML = `
+        <div class="head">
+            <span class="text">User Images</span>
+            <span class="num">1</span>
+        </div>
+        <div class="images hide"></div>
+        `;
 
+        div_1.children[0].addEventListener("click", () => {
+            div_1.children[1].classList.toggle("hide");
+        });
+    }
     var div_2 = document.createElement("div");
     div_2.className = "image";
     div_2.id = img.id;
-    div_1.appendChild(div_2);
     div_2.innerHTML = `
-    <div class="user-image" id="${img.id}">
-        <i class="fa-sharp fa-regular fa-image image-icon"></i>
-        <img src="${img.url}" alt="" style="display:none">
-    </div>`;
+    <div class="top me-d-flex">
+        <i class="fa-regular fa-arrow-up up-icon me-mla hide "></i>
+        <i class="fa-regular fa-arrow-down down-icon hide"></i>
+        <i class="fa-regular fa-xmark cross-icon me-mla"></i>
+    </div>
+    <img src="${img.url}" alt="">
+    <span class="text" contenteditable="true" >${img.text}</span>
+    `;
+    div_1.querySelector(".images").appendChild(div_2);
+
+    div_1.querySelector(".head .num").textContent = div_1.querySelectorAll("img").length;
+    div_2.querySelector(".cross-icon").addEventListener("click", (e) => {
+        var id = div.id;
+        img.linked_blocks = removeItemFromArray(id, img.linked_blocks);
+        saveStudentData();
+        div_2.remove();
+        if (!div_1.querySelector("img")) div_1.remove();
+    });
+    div_2.querySelector("img").addEventListener("click", (e) => {
+        showImagesInOverlay(e, "page-images");
+    });
+    div_2.querySelector(".text").addEventListener("input", (e) => {
+        var text = e.target.textContent.trim();
+        if (text == "") {
+            text = "Add some text for image";
+        }
+        img.text = text;
+        saveStudentData();
+    });
+}
+
+function showImagesInOverlay(e, type) {
+    var div = getImageOverlayTemplate();
+    var all_user_images;
+    if (type == "all-images") all_user_images = document.querySelectorAll(".all-images .user-images img");
+    if (type == "page-images") all_user_images = document.querySelectorAll(".me-page .user-images img");
+    var curr_img_index = 0;
+    all_user_images.forEach((img, index) => {
+        if (img == e.target) curr_img_index = index;
+    });
+    displayImageInOverlay(div, curr_img_index, all_user_images);
+    div.querySelector(".next").addEventListener("click", () => {
+        ++curr_img_index;
+        if (curr_img_index == all_user_images.length) --curr_img_index;
+        displayImageInOverlay(div, curr_img_index, all_user_images);
+        return;
+    });
+    div.querySelector(".prev").addEventListener("click", () => {
+        --curr_img_index;
+        if (curr_img_index < 0) ++curr_img_index;
+        displayImageInOverlay(div, curr_img_index, all_user_images);
+        return;
+    });
+}
+function displayImageInOverlay(div, index, all_user_images) {
+    div.querySelector("img").src = all_user_images[index].src;
+}
+
+var global_temp_arr = [];
+
+function showAllImageNotes(type) {
+    var div = document.querySelector(".all-images-list");
+    var all_images = [];
+    var pages = pages_data.pages;
+    pages.forEach((page) => {
+        var div1 = document.createElement("div");
+        div1.className = "chapter me-d-flex-c";
+        div1.innerHTML = `
+         <div class="head me-cp me-d-flex">
+            <span class="chapter-name">${page.title}</span>
+            <span class="num"></span>
+        </div>
+        <div class="user-images hide"></div>
+        `;
+        var blocks = page.blocks;
+        all_images = [];
+        blocks.forEach((block) => {
+            all_images = checkImageInBlock(block, all_images);
+        });
+        if (all_images.length) {
+            div.appendChild(div1);
+
+            div1.children[0].addEventListener("click", () => {
+                div1.children[1].classList.toggle("hide");
+            });
+            div1.querySelector(".num").textContent = all_images.length;
+
+            all_images.forEach((img) => {
+                var div2 = document.createElement("div");
+                div2.className = "image";
+                div2.id = img.id;
+                div2.innerHTML = `
+                <img src="${img.url}" alt="">
+                <span class="text" contenteditable="true" >${img.text}</span>
+                `;
+                div1.children[1].appendChild(div2);
+                div2.children[0].addEventListener("click", (e) => {
+                    showImagesInOverlay(e, "all-images");
+                });
+                div2.children[1].addEventListener("input", (e) => {
+                    var text = div2.children[1].textContent.trim();
+                    if (text == "") {
+                        text = "Add some text for image";
+                    }
+                    img.text = text;
+                    saveStudentData();
+                });
+            });
+        }
+    });
+
+    displayInMainPage("me-page");
+}
+function checkImageInBlock(block, all_images) {
+    var uid = block.uid;
+    student_data_array_me.images.forEach((image) => {
+        if (image.linked_blocks.includes(uid)) all_images.push(image);
+    });
+    var children = block.children;
+    if (children) {
+        children.forEach((block) => {
+            all_images = checkImageInBlock(block, all_images);
+        });
+    }
+    return all_images;
 }
 
 function displayInMainPage(arg) {
@@ -383,8 +930,10 @@ function displayInMainPage(arg) {
         document.querySelector(".main-page .home-page").classList.remove("hide");
     } else if (arg == "questions") {
         document.querySelector(".main-page .practice-que-sec").classList.remove("hide");
-    } else if ("roam-page") {
-        document.querySelector(".main-page .main-page-content").classList.remove("hide");
+    } else if (arg == "me-page") {
+        document.querySelector(".main-page .me-page").classList.remove("hide");
+    } else if (arg == "all-images") {
+        document.querySelector(".main-page .all-images").classList.remove("hide");
     }
 }
 displayInMainPage("home");
@@ -478,6 +1027,23 @@ function getTagElement(tag) {
     return div;
 }
 
+function getImageOverlayTemplate() {
+    var div = document.createElement("div");
+    div.className = "me-image-overlay me-io";
+    div.innerHTML = `
+    <i class="fa-regular fa-xmark cross-icon me-mla"></i>
+    <img id="overlay-img" class="overlay-img" src="" alt="Image" />
+    <i class="fa-regular fa-chevron-left prev"></i>
+    <i class="fa-regular fa-chevron-right next"></i>
+    `;
+    document.body.appendChild(div);
+    div.querySelector(".cross-icon").addEventListener("click", () => {
+        div.remove();
+    });
+
+    return div;
+}
+
 function showLinkedQuestions(tag, type, name) {
     var b = document.querySelector(".linked-questions-section");
     if (b) b.remove();
@@ -490,12 +1056,12 @@ function showLinkedQuestions(tag, type, name) {
     div.innerHTML = `
     <div class="top me-d-flex">
         <div class="me-lable-sec me-d-flex-c"></div>
-        <i class="fa-regular fa-xmark-large me-cross-icon me-cp me-mla"></i>
+        <i class="fa-regular fa-xmark-large cross-icon me-cp me-mla"></i>
     </div>
     <div class="linked-question-list"></div>
     `;
 
-    div.querySelector(".me-cross-icon").addEventListener("click", () => {
+    div.querySelector(".cross-icon").addEventListener("click", () => {
         div.remove();
     });
     var label_sec = div.querySelector(".me-lable-sec");
@@ -562,14 +1128,13 @@ function addLinkedQuestionSpan(que, target) {
 }
 
 function openAndScrollToBlock(page_uid, block_uid) {
-    openRoamPage(page_uid);
+    var x = document.querySelector(".me-page-title");
+    if (!x || x.id != page_uid) openRoamPage(page_uid);
+
+    displayInMainPage("me-page");
     var div = document.querySelector(`div[id="${block_uid}"]`);
-    displayInMainPage("roam-page");
-    div.classList.add("me-focus-block");
+    div.children[0].classList.add("me-focus-block");
     div.scrollIntoView({ behavior: "smooth" });
-    setTimeout(function () {
-        div.classList.remove("me-focus-block");
-    }, 4000);
 
     return;
 
@@ -723,7 +1288,11 @@ function saveStudentData() {
     console.log("student data saved in locale");
 }
 function getStudentData() {
-    student_data_array_me = getDataFromLocale("student_data_array_me");
+    var data = getDataFromLocale("student_data_array_me");
+    if (data) {
+        student_data_array_me = data;
+    }
+
     console.log("student data retrieved from locale");
 }
 function saveDataInLocale(key, array) {
@@ -858,31 +1427,18 @@ function getUID() {
 
     return uid;
 }
-async function getImageURL() {
-    var url = uploadImage();
-}
-var interval_save_image;
-var image_url = "";
-function saveImage() {
-    function saveImage(url) {
-        if (image_url != "") {
-            image_url = "";
-            clearInterval(interval_save_image);
-        }
-    }
-}
 
-function popupAlert(message, time) {
-    var div = document.createElement("div");
-    div.className = "me-popup-alert";
-    div.textContent = message;
-    document.body.append(div);
-    if (time) return;
-    setTimeout(function () {
-        div.remove();
-    }, 3000);
+function sortArrayRandomly(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
 }
-function removePopupAlert() {
-    var x = document.querySelector(".me-popup-alert");
-    if (x) x.remove();
+function removeItemFromArray(item, array) {
+    const index = array.indexOf(item);
+    if (index !== -1) {
+        array.splice(index, 1);
+    }
+    return array;
 }
