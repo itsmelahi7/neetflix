@@ -30,6 +30,10 @@ export function uploadImage() {
     input.onchange = (e) => {
         const file = e.target.files[0];
         popupAlert("Image is loading...", true);
+        setTimeout(function () {
+            removePopupAlert();
+        }, 10000);
+
         //interval_save_image = setInterval(saveImage, 1000);
         if (file) {
             const storageRef = ref(storage, `images/${file.name}`);
