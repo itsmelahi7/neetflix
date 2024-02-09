@@ -81,7 +81,11 @@ body .container>.head i {
 
 body .container .head i {
     font-size: 1.5em;
-    ;
+
+}
+
+body.mobile .container .head i {
+    font-size: 1.2em;
 }
 
 
@@ -182,7 +186,7 @@ body .container .head .app-logo::before {
     font-weight: 500;
     font-size: 1.1em;
     color: #420896;
-    margin: 15px 0px;
+    margin: 0px;
 }
 
 .rm-bold {
@@ -219,8 +223,12 @@ body .container .head .app-logo::before {
     height: auto;
 }
 
+.me-page div.me-block:has(.me-focus-block) {
+    padding: 0px;
+}
+
 .me-focus-block {
-    background-color: #fff3d3;
+    background-color: #dbc999;
     border-left: 3px solid orange;
     padding: 10px;
 }
