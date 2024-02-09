@@ -218,6 +218,39 @@ body .container .head .app-logo::before {
 
 }
 
+button {
+    cursor: pointer;
+}
+
+.error {
+    margin: 4px 0px;
+    font-size: 0.8em;
+    color: red;
+}
+
+.login-sec {
+    display: block;
+    padding: 30px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.login-sec input {
+    margin: 10px 0px;
+}
+
+
+.login-sec button {
+    padding: 10px;
+    background-color: #088eeb;
+    border: 0px;
+    border-radius: 5px;
+    color: white;
+    font-size: 1em;
+    font-family: sans-serif;
+    margin: 7px 0px;
+}
+
 .me-block img {
     width: auto;
     height: auto;
@@ -229,7 +262,7 @@ body .container .head .app-logo::before {
 
 .me-focus-block {
     background-color: #dbc999;
-    border-left: 3px solid orange;
+    border-left: 0px solid orange;
     padding: 10px;
 }
 
@@ -480,13 +513,15 @@ body .container .head .app-logo::before {
     border-bottom: 1px solid gray;
 }
 
-
+.error {
+    color: red;
+}
 
 span[contenteditable="true"],
 input,
 image span {
     padding: 10px;
-    color: gray !important;
+    /*   color: gray !important;*/
 }
 
 .me-block .user-images img {
@@ -612,7 +647,7 @@ button.me-btn {
     right: 2%;
     width: 300px;
 
-    background-color: rgb(224, 224, 224);
+    background-color: white;
     padding: 20px;
     border-radius: 7px;
 }

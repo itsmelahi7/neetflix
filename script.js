@@ -36,7 +36,7 @@ export function uploadImage() {
 
         //interval_save_image = setInterval(saveImage, 1000);
         if (file) {
-            const storageRef = ref(storage, `images/${file.name}`);
+            const storageRef = ref(storage, `images/${student_data_array_me.username}/${file.name}`);
             const uploadTask = uploadBytes(storageRef, file);
 
             uploadTask
@@ -61,7 +61,7 @@ export function uploadImage() {
     input.click();
 }
 
-/// IMPORT
+/// NON IMPORT from BELOW
 
 async function getImageURL() {
     var url = uploadImage();
@@ -104,7 +104,7 @@ var pages_data = {
 var student_data_array_me = {
     questions: [],
     images: [],
-    user_name: "",
+    username: "",
 };
 var all_tags = []; // ["polity", "economy", "biology"];
 var filter_tags = [];
@@ -140,6 +140,7 @@ async function initialLoading() {
     }
     // load student_data
     getStudentData();
+
     if (!student_data_array_me.questions) student_data_array_me.questions = [];
     if (!student_data_array_me.images) student_data_array_me.images = [];
     console.log("me: student data from locale retrieved");
@@ -279,6 +280,11 @@ function getPageBlocks(uid) {
 }
 
 function loadInHomePage() {
+    debugger;
+    if (!student_data_array_me.username || student_data_array_me.username == "") {
+        loadLoginUI();
+        return;
+    }
     loadAllNCERTChapters();
     loadAllPYQs();
     loadchapterWiseMCQs();
@@ -318,7 +324,7 @@ function loadAllNCERTChapters() {
         span.className = "chapter-name chapter item";
         span.id = page.uid;
         span.textContent = page.title;
-        debugger;
+
         if (i != 0 && page.title.indexOf("Chapter 1:") != -1) {
             var span = document.createElement("span");
             span.textContent = "12th NCERT";
@@ -523,7 +529,7 @@ function openChapterMCQs(page_uid) {
 
         if (que.block_uid && que.block_uid != "") {
             var div1 = document.createElement("div");
-            div1.className = "read-ncert-text";
+            div1.className = "read-ncert-text me-link";
             div1.textContent = "Read NCERT Text";
             div.appendChild(div1);
             div1.addEventListener("click", () => {
@@ -582,9 +588,8 @@ function loadAboutMe() {
         <a href="https://twitter.com/mehboobelahi05" target="_blank" class="icon x"><img src="./assets/twitter.png" /></a>
         <a href="https://www.youtube.com/@mehboobelahi05/featured" target="_blank" class="icon youtube"><img src="./assets/youtube.png" /></a>
     </div>
-    <span class="text"> Any website level changes are going to update in the app automatically
-We don't charge monthly or yearly. We charge per build.
-App build is not required if you make any changes in your website. App will always be synced with website. Build is required if you want to make change in the app icon , launch screen and all. </span>
+    <span class="text">Hi students, this is Mehboob Elahi. I am from Kargil district, in UT of Ladakh. I developed this app to help you in your prepratuion of NEET, and I hope that it will make your journey of NEET exam little easy and fun. If you find any issue, or have any feedback you can reach to me on the above given social media accounts </span>
+    <span class="text">Happy Leaning..!!</span>
     `;
 }
 
@@ -664,7 +669,6 @@ function setAutoComplete(event, arr, type, target) {
                 if (type == "que-filter-tags") {
                     handleFilterTag(input, tag);
                 } else if (type == "search-image") {
-                    debugger;
                     handleSelectedSearchImage(input, tag);
                 } else if ((type = "me-add-que-tags")) {
                     handleNewQuestionTags(input, tag);
@@ -821,7 +825,7 @@ function addPageBlocks(block, target) {
     });
     div_add.querySelector(".search-icon").addEventListener("click", () => {
         //uploadAndAddImage(div_main);
-        debugger;
+
         var input = document.createElement("input");
         input.placeholder = "Search by Image Text";
         div_add.appendChild(input);
@@ -835,7 +839,7 @@ function addPageBlocks(block, target) {
             student_data_array_me.images.forEach((img) => {
                 arr.push(img.text);
             });
-            debugger;
+
             setAutoComplete(event, arr, "search-image");
         });
         input.focus();
@@ -1466,9 +1470,34 @@ function getCurrentQuestionFromStudentData(id) {
     }
     return st_que;
 }
-function saveStudentData() {
+async function saveStudentData(obj) {
     saveDataInLocale("student_data_array_me", student_data_array_me);
     console.log("student data saved in locale");
+    var id = "797b7e46f9f9ccac31320f83f92ecdd8";
+    var filename = "neet_user_data.json";
+    var data = await getDataFromGit(id, filename);
+    var std_obj = null;
+    if (!data) {
+        console.log("me: saveStudentData .. git user data is null");
+        return;
+    }
+    debugger;
+    // data = users
+    var username = student_data_array_me.username;
+    var password = student_data_array_me.password;
+
+    var users = data.users;
+    var i = 0;
+    for (i = 0; i < users.length; i++) {
+        if (users[i].username == username && users[i].password == password) {
+            break;
+        }
+    }
+    debugger;
+    if (i < users.length) data.users[i].data = student_data_array_me;
+    else if (obj) data.users.push(obj);
+
+    saveDataInGit(id, data, filename);
 }
 function getStudentData() {
     var data = getDataFromLocale("student_data_array_me");
@@ -1545,10 +1574,7 @@ function getPageTitle(uid) {
     }
 }
 
-function saveDataInGit(type) {
-    var data;
-    var filename;
-    var id;
+function saveDataInGit(id, data, filename, type) {
     if (type == "pages") {
         data = JSON.stringify(pages_data);
         id = "53593a25b5bc8b0ca8046ff2bfc08eb9";
@@ -1588,7 +1614,8 @@ function saveDataInGit(type) {
         });
 }
 
-var git_api = "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";
+//var git_api = "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";
+var git_api = "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";
 
 function getTodayDate_YYYYMMDDD() {
     const today = new Date();
@@ -1640,4 +1667,112 @@ function checkMcqAnswer(event, que) {
     }
     var x = document.querySelector(".que-section .check-answer");
     if (x) x.classList.remove("hide");
+}
+
+function loadLoginUI() {
+    var div = document.createElement("div");
+    div.className = "login-sec";
+    document.querySelector(".home-page").appendChild(div);
+    div.innerHTML = `
+    <span>Login/Signup using your username and password.</span>
+<div class="login-sec me-d-flex-c">
+    <input type="text" class="username" placeholder="add username" />
+    <input type="password" class="password" placeholder="add password (7 digits)" />
+    <label class="show-password me-link">show password </label>
+    <span class="error"></span>
+    <button class="submit hide">Submit</button>
+    <button class="create">Create</button>
+</div>
+    `;
+
+    div.querySelector(".show-password").addEventListener("click", (event) => {
+        // If checkbox is checked, show password; otherwise, hide password
+
+        event.target.classList.toggle("yes");
+
+        if (event.target.classList.contains("yes")) {
+            div.querySelector(".password").type = "text";
+            event.target.textContent = "hide password";
+        } else {
+            div.querySelector(".password").type = "password";
+            event.target.textContent = "show password";
+        }
+    });
+    div.querySelector(".create").addEventListener("click", () => {
+        var error = div.querySelector(".error");
+        var username = div.querySelector(".username").value;
+        var password = div.querySelector(".password").value;
+        if (username == "" || password == "") {
+            error.textContent = "username and password should not be empty.";
+            return;
+        }
+        if (username.length < 6 || password.length < 7) {
+            error.textContent = "username and password should not be less then 7 digits";
+            return;
+        }
+        verifyLogin(username, password, "create");
+    });
+    div.querySelector(".submit").addEventListener("click", () => {
+        var error = div.querySelector(".error");
+        var username = div.querySelector(".username").value;
+        var password = div.querySelector(".password").value;
+        if (username == "" || password == "") {
+            error.textContent = "username and password should not be empty.";
+            return;
+        }
+        if (username.length < 6 || password.length < 7) {
+            error.textContent = "username and password should not be less then 7 digits";
+            return;
+        }
+        verifyLogin(username, password, "login");
+    });
+}
+
+async function verifyLogin(username, password, type) {
+    debugger;
+    var div = document.querySelector(".login-sec");
+    var error = div.querySelector(".error");
+    var git_id = "797b7e46f9f9ccac31320f83f92ecdd8";
+    var git_filename = "neet_user_data.json";
+    var data = await getDataFromGit(git_id, git_filename);
+
+    if (type == "create") {
+        var std_obj = null;
+        debugger;
+        data.users.forEach((userdata) => {
+            if (userdata.username == username) std_obj = userdata;
+        });
+        if (!std_obj) {
+            std_obj = {
+                username: username,
+                password: password,
+                data: {
+                    questions: [],
+                    images: [],
+                    videos: [],
+                    others: [],
+                    username: username,
+                    password: password,
+                },
+            };
+            student_data_array_me = std_obj.data;
+            data.users.push(std_obj);
+            saveStudentData(std_obj);
+            //saveDataInGit(git_id, data, git_filename);
+            loadInHomePage();
+            div.remove();
+        } else {
+            error.textContent = "username alread exists, chose another username";
+        }
+    } else if (type == "login") {
+        var std_obj = null;
+        data.users.forEach((user) => {
+            if (user.username == username && userdata.password == password) std_obj = user;
+        });
+        if (std_obj) {
+            student_data_array_me = std_obj.data;
+        } else {
+            error.textContent = "Wrong username/password";
+        }
+    }
 }
