@@ -308,11 +308,24 @@ function loadAllNCERTChapters() {
             head_icon.className = "fa-regular fa-angle-up down-icon arrow-icon me-mla";
         }
     });
+    var span = document.createElement("span");
+    span.textContent = "11th NCERT";
+    span.className = "class-heading";
+    div.children[1].appendChild(span);
+    var i = 0;
     pages_data.pages.forEach((page) => {
         var span = document.createElement("span");
         span.className = "chapter-name chapter item";
         span.id = page.uid;
         span.textContent = page.title;
+        debugger;
+        if (i != 0 && page.title.indexOf("Chapter 1:") != -1) {
+            var span = document.createElement("span");
+            span.textContent = "12th NCERT";
+            span.className = "class-heading";
+            div.children[1].appendChild(span);
+        }
+        ++i;
         div.children[1].appendChild(span);
         span.addEventListener("click", () => {
             var x = div.querySelector(".active");
@@ -402,6 +415,28 @@ function openPYQs(year) {
         var d = getMCQOptionsTemplate(que);
         d.querySelector(".pyq-year").remove();
         div.appendChild(d);
+        if (que.block_uid && que.block_uid != "") {
+            var div1 = document.createElement("div");
+            div1.className = "read-ncert-text";
+            div1.textContent = "Read NCERT Text";
+            div.appendChild(div1);
+            div1.addEventListener("click", () => {
+                openAndScrollToBlock(que.page_uid, que.block_uid);
+            });
+        }
+        if (que.explanation != "") {
+            var div1 = document.createElement("div");
+            div1.className = "explanation";
+            div1.innerHTML = `
+            <span class="head">Explanation</span>
+            <span class="text main hide"></span>`;
+            div.appendChild(div1);
+            div1.children[1].innerHTML = convertTextToHTML(que.explanation);
+
+            div1.querySelector(".head").addEventListener("click", () => {
+                div1.querySelector(".main").classList.toggle("hide");
+            });
+        }
     });
 
     displayInMainPage("me-page");
@@ -485,6 +520,29 @@ function openChapterMCQs(page_uid) {
         var x = d.querySelector(".pyq-year");
         if (x) x.remove();
         div.appendChild(d);
+
+        if (que.block_uid && que.block_uid != "") {
+            var div1 = document.createElement("div");
+            div1.className = "read-ncert-text";
+            div1.textContent = "Read NCERT Text";
+            div.appendChild(div1);
+            div1.addEventListener("click", () => {
+                openAndScrollToBlock(que.page_uid, que.block_uid);
+            });
+        }
+        if (que.explanation != "") {
+            var div1 = document.createElement("div");
+            div1.className = "explanation";
+            div1.innerHTML = `
+            <span class="head">Explanation</span>
+            <span class="text main hide"></span>`;
+            div.appendChild(div1);
+            div1.children[1].innerHTML = convertTextToHTML(que.explanation);
+
+            div1.querySelector(".head").addEventListener("click", () => {
+                div1.querySelector(".main").classList.toggle("hide");
+            });
+        }
     });
 
     displayInMainPage("me-page");
@@ -560,10 +618,10 @@ function setAutoComplete(event, arr, type, target) {
 
     input.addEventListener("input", function () {
         var inputValue = input.value.trim().toLowerCase();
-        const matchingNames = [];
-        try {
-            matchingNames = arr.filter((name) => name.toLowerCase().includes(inputValue));
-        } catch (e) {}
+        //const matchingNames = [];
+        //try {
+        const matchingNames = arr.filter((name) => name.toLowerCase().includes(inputValue));
+        //} catch (e) {}
 
         autocompleteList.innerHTML = "";
 
@@ -605,8 +663,9 @@ function setAutoComplete(event, arr, type, target) {
                 var tag = event.target.textContent.trim();
                 if (type == "que-filter-tags") {
                     handleFilterTag(input, tag);
-                } else if (type == "link-search") {
-                    handleSelectedSearchLink(input, tag);
+                } else if (type == "search-image") {
+                    debugger;
+                    handleSelectedSearchImage(input, tag);
                 } else if ((type = "me-add-que-tags")) {
                     handleNewQuestionTags(input, tag);
                 } else {
@@ -757,8 +816,29 @@ function addPageBlocks(block, target) {
         <i class="fa-regular fa-magnifying-glass  search-icon me-cp"></i>
     `;
 
-    div_add.children[0].addEventListener("click", () => {
+    div_add.querySelector(".image-icon").addEventListener("click", () => {
         uploadAndAddImage(div_main);
+    });
+    div_add.querySelector(".search-icon").addEventListener("click", () => {
+        //uploadAndAddImage(div_main);
+        debugger;
+        var input = document.createElement("input");
+        input.placeholder = "Search by Image Text";
+        div_add.appendChild(input);
+        document.addEventListener("mousedown", (event) => {
+            if (!div_add.contains(event.target) && !autocompleteList.contains(event.target)) {
+                input.remove();
+            }
+        });
+        input.addEventListener("focus", (event) => {
+            var arr = [];
+            student_data_array_me.images.forEach((img) => {
+                arr.push(img.text);
+            });
+            debugger;
+            setAutoComplete(event, arr, "search-image");
+        });
+        input.focus();
     });
     var images = [];
 
@@ -780,6 +860,45 @@ function addPageBlocks(block, target) {
         block.children.forEach((child) => {
             addPageBlocks(child, div2);
         });
+    }
+}
+
+function getBlockUid(event, element) {
+    if (element) {
+        return element.closest(".me-block-main").id;
+    } else {
+        return event.target.closest(".me-block-main").id;
+    }
+}
+function handleSelectedSearchImage(input, tag) {
+    var search_text = tag;
+    var search_image = "null";
+    student_data_array_me.images.forEach((img) => {
+        if (img.text == search_text) search_image = img;
+    });
+    var uid = getBlockUid(null, input);
+    if (!search_image.linked_blocks.includes(uid)) search_image.linked_blocks.push(uid);
+    saveStudentData();
+    var div = input.closest(".me-block-main");
+    addImageElementInBlock(div, search_image);
+    input.remove();
+}
+
+function getLinkTemplate(link) {
+    if (link.type == "video") {
+        var div = document.createElement("div");
+        div.className = "me-ext-link";
+        div.innerHTML = `
+        <div class="icons">
+            <a id="${link.id}" class="me-link  me-ytv-link bp3-button bp3-minimal bp3-icon-video bp3-small dont-focus-block" video-id="${link.video_id}" time-in-seconds="${link.time_in_seconds}" url="${link.url}"> ${link.time_in_hour} </a>
+            <span class="text" contenteditable="true">${link.text}</span>
+            <span class="linked-blocks me-link hide">1</span>
+            <span class="bp3-button bp3-minimal bp3-icon-duplicate bp3-small hide"></span>
+            <span class="bp3-button bp3-minimal bp3-icon-cross bp3-small"></span>
+        </div>
+        `;
+
+        return div;
     }
 }
 
@@ -910,7 +1029,7 @@ function showAllImageNotes(type) {
         div1.className = "chapter me-d-flex-c";
         div1.innerHTML = `
          <div class="head me-cp me-d-flex">
-            <span class="chapter-name">${page.title}</span>
+            <span id="${page.uid}" class="chapter-name page-name">${page.title}</span>
             <span class="num"></span>
         </div>
         <div class="user-images hide"></div>
@@ -928,19 +1047,31 @@ function showAllImageNotes(type) {
             });
             div1.querySelector(".num").textContent = all_images.length;
 
-            all_images.forEach((img) => {
+            all_images.forEach((image) => {
                 var div2 = document.createElement("div");
                 div2.className = "image";
-                div2.id = img.id;
+                div2.id = image.img.id;
                 div2.innerHTML = `
-                <img src="${img.url}" alt="">
-                <span class="text" contenteditable="true" >${img.text}</span>
+                <i class="fa-regular fa-link link-icon me-mla"></i>
+                <img src="${image.img.url}" alt="">
+                <span class="text" contenteditable="true" >${image.img.text}</span>
                 `;
                 div1.children[1].appendChild(div2);
-                div2.children[0].addEventListener("click", (e) => {
+
+                div2.querySelector(".link-icon").addEventListener("click", (e) => {
+                    var page_uid = div1.querySelector(".page-name").id;
+                    var block_uid = image.block_uid;
+                    openAndScrollToBlock(page_uid, block_uid);
+                    var x = document.querySelector(`div[id="${block_uid}"]`);
+                    if (x) {
+                        x.children[0].classList.add("me-focus-block");
+                        x.scrollIntoView({ behavior: "smooth" });
+                    }
+                });
+                div2.querySelector("img").addEventListener("click", (e) => {
                     showImagesInOverlay(e, "all-images");
                 });
-                div2.children[1].addEventListener("input", (e) => {
+                div2.querySelector(".text").addEventListener("input", (e) => {
                     var text = div2.children[1].textContent.trim();
                     if (text == "") {
                         text = "Add some text for image";
@@ -957,7 +1088,13 @@ function showAllImageNotes(type) {
 function checkImageInBlock(block, all_images) {
     var uid = block.uid;
     student_data_array_me.images.forEach((image) => {
-        if (image.linked_blocks.includes(uid)) all_images.push(image);
+        if (image.linked_blocks.includes(uid)) {
+            //all_images.push(image);
+            all_images.push({
+                img: image,
+                block_uid: uid,
+            });
+        }
     });
     var children = block.children;
     if (children) {
@@ -1487,4 +1624,20 @@ function removeItemFromArray(item, array) {
         array.splice(index, 1);
     }
     return array;
+}
+
+function checkMcqAnswer(event, que) {
+    var option = event.target;
+    if (option.classList.contains("correct")) {
+        option.classList.add("right");
+    } else {
+        option.classList.add("wrong");
+        option.parentElement.querySelector(".correct").classList.add("right");
+        var s_que = getCurrentQuestionFromStudentData(que.id);
+        if (!s_que.incorret_questions) s_que.incorret_questions = [];
+        if (!s_que.incorret_questions.includes(que.id)) s_que.incorret_questions.push(que.id);
+        saveStudentData();
+    }
+    var x = document.querySelector(".que-section .check-answer");
+    if (x) x.classList.remove("hide");
 }

@@ -68,6 +68,7 @@ body .container>.head i {
     height: calc(100vh - 50px);
     display: block;
     overflow-y: scroll;
+    background-color: #dbdbdb;
 }
 
 .main-page:has(.practice-que-sec) {
@@ -75,7 +76,7 @@ body .container>.head i {
 }
 
 .main-page:has(.practice-que-sec.hide) {
-    background-color: white;
+    background-color: #dbdbdb;
 }
 
 body .container .head i {
@@ -163,6 +164,14 @@ body .container .head .app-logo::before {
     display: none;
     opacity: 0.3;
     margin-top: 15px;
+}
+
+.add-sec:has(input) i {
+    display: none;
+}
+
+.add-sec input {
+    width: 80%;
 }
 
 .me-block-main:has(.me-focus-block) div.add-sec {
@@ -700,10 +709,17 @@ button.me-btn {
 
 .all-images .image {
     width: 70%;
+    margin: 15px 0px;
 }
 
 .all-images img {
     width: 100%;
+}
+
+.image .link-icon {
+    float: right;
+    margin: 7px 0px;
+    cursor: pointer;
 }
 
 .all-images .chapter .head {
@@ -712,16 +728,28 @@ button.me-btn {
     box-shadow: 0 1px 10px #b7daf4;
     min-width: min(500px, 90%);
     justify-content: center;
+    background-color: white;
+    border-radius: 5px
 }
 
 .mobile .all-images .chapter .head {
-    padding: 5px 10px;
+    padding: 15px;
     display: inline;
 }
 
 .all-images .chapter-name {
     font-size: 1.3em;
     color: #121792;
+}
+
+.section .class-heading {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin: 15px;
+    display: block;
+    text-align: center;
+    border-bottom: 1px solid gray;
+    padding-bottom: 15px;
 }
 
 .all-images .chapter .num {
@@ -797,8 +825,8 @@ button.me-btn {
 
 .home-page .section .items {
     display: block;
-    max-height: 40vh;
-    overflow-y: scroll;
+    /*max-height: 40vh;
+    overflow-y: scroll;*/
     border-top: 1px solid gray;
     margin-top: 10px;
     padding-top: 11px;
@@ -836,6 +864,43 @@ button.me-btn {
 .about-me .social-media-links img {
     width: 38px;
     margin: 0px 9px;
+}
+
+.mcq .read-ncert-text,
+.mcq .explanation {
+    display: none;
+}
+
+
+.mcq .read-ncert-text {
+    padding: 5px 10px;
+    /*background-color: #6a68ac;
+    width: fit-content;
+    border-radius: 4px;
+    color: #e6e6e6;*/
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+.mcq .explanation .head {
+    padding: 5px 10px;
+    background-color: #389fe1;
+    width: fit-content;
+    border-radius: 4px;
+    color: #e6e6e6;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+.mcq .explanation .main {
+    padding-left: 15px;
+}
+
+.mcq:has(.right) .read-ncert-text,
+.mcq:has(.right) .explanation {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .about-me .name {
