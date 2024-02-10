@@ -465,7 +465,7 @@ function practiceQuestions() {
         <div class="head">
             <i class="fa-regular fa-seal-question"></i>
             <span class="text">Practise</span>
-            <i class="fa-regular fa-angle-down down-icon arrow-icon me-mla"></i>
+            <i class="fa-regular fa-angle-down down-icon hide arrow-icon me-mla"></i>
         </div>
         <div class="chapter-list items hide"></div>
     `;
