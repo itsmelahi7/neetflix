@@ -996,7 +996,7 @@ button.me-btn {
 .search-bar .top {
     justify-content: center;
     align-items: center;
-    width: min(600px, 80%);
+    width: min(600px, 95%);
     margin-top: 20px;
     background-color: white;
     padding: 15px;
@@ -1018,7 +1018,7 @@ input::placeholder {
 .search-result {
     background-color: white;
     padding: 15px;
-    width: min(600px, 80%);
+    width: min(600px, 95%);
 }
 
 .me-search-result {
@@ -1043,7 +1043,7 @@ input::placeholder {
 
 .search-bar .filter-sec {
     background-color: white;
-    width: min(600px, 80%);
+    width: min(600px, 95%);
     justify-content: center;
     align-items: center;
     gap: 10px;
