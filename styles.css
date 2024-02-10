@@ -71,11 +71,19 @@ body .container>.head i {
     background-color: #dbdbdb;
 }
 
-.main-page:has(.practice-que-sec) {
-    background-color: #F4F7F8;
+.tabs .page-icon {
+    display: none;
 }
 
-.main-page:has(.practice-que-sec.hide) {
+body:has(.me-page span) .tabs .page-icon {
+    display: inline;
+}
+
+.main-page:has(.questions-page) {
+    /*background-color: #F4F7F8;*/
+}
+
+.main-page:has(.questions-page.hide) {
     background-color: #dbdbdb;
 }
 
@@ -90,6 +98,7 @@ body.mobile .container .head i {
 
 
 
+
 body .container .head .app-logo {
     margin-right: auto;
 }
@@ -100,11 +109,16 @@ body .container .head .app-logo span {
     font-weight: 700;
 }
 
+.mobile .container .head .app-logo .name {
+    display: none;
+}
+
 body .container .head .app-logo i {
     font-size: 1.5em;
 }
 
-body .container .head .app-logo::before {
+body .container .head .app-logo span.logo,
+body .container .head .app-logo_::before {
     content: 'N';
     font-size: 1.5em;
     background-color: #e72424;
@@ -119,7 +133,15 @@ body .container .head .app-logo::before {
     overflow-y: scroll;
 }
 
-.practice-que-sec {
+.main-page .questions-page {
+    display: block;
+    padding: 10px 50px;
+    max-height: 100%;
+    overflow-y: scroll;
+    background-color: #dbdbdb;
+}
+
+.questions-page:has(.que-section) {
     width: min(600px, 100%);
     margin: 10px auto;
     box-shadow: 0 1px 10px #888181;
@@ -130,13 +152,13 @@ body .container .head .app-logo::before {
     overflow-y: scroll;
 }
 
-.mobile .practice-que-sec {
+.mobile .questions-page {
     margin: 0px;
     box-shadow: none;
     border-radius: 0px;
 }
 
-.practice-que-sec>* {
+.questions-page>* {
     padding: 15px;
 }
 
@@ -296,7 +318,7 @@ button {
 
 
 
-.practice-que-sec .filter-sec {
+.questions-page .filter-sec {
     background-color: inherit;
     padding: 5px;
     width: fit-content;
@@ -305,7 +327,7 @@ button {
     border-radius: 3px;
 }
 
-.practice-que-sec .filter-sec input {
+.questions-page .filter-sec input {
     background-color: inherit;
     border: 0px;
 }
@@ -352,12 +374,12 @@ button {
     border: 0px;
 }
 
-.me-page .mcq {
+.questions-page>.mcq {
     padding: 15px;
     border-bottom: 1px solid gray;
 }
 
-.me-page .mcq-page-title {
+.questions-page .mcq-page-title {
     font-weight: 800;
     font-size: 1.7em;
     text-align: center;
@@ -646,7 +668,6 @@ button.me-btn {
     top: 23%;
     right: 2%;
     width: 300px;
-
     background-color: white;
     padding: 20px;
     border-radius: 7px;
@@ -964,4 +985,71 @@ button.me-btn {
 
 .section>.head .arrow-icon {
     float: right;
+}
+
+.search-bar {
+    justify-content: center;
+    align-items: center;
+}
+
+.search-bar .top {
+    justify-content: center;
+    align-items: center;
+    width: min(600px, 80%);
+    margin-top: 20px;
+    background-color: white;
+    padding: 15px;
+}
+
+input::placeholder {
+    font-size: 0.8em;
+    color: gray;
+}
+
+.search-bar .top input {
+    border: 1px solid gray;
+    border: 1px solid gray;
+    padding: 7px;
+    margin: 0px 11px;
+    border-radius: 7px;
+}
+
+.search-result {
+    background-color: white;
+    padding: 15px;
+    width: min(600px, 80%);
+}
+
+.me-search-result {
+    padding: 15px 0px;
+    border-bottom: 1px solid gray;
+}
+
+.ncert>.page-title {
+    font-size: 0.9em;
+    color: gray;
+    padding: 4px;
+}
+
+.me-search-highlight {
+    background-color: greenyellow;
+}
+
+.me-search-block-main.active {
+    background-color: #f4e3f8b8;
+    padding: 10px;
+}
+
+.search-bar .filter-sec {
+    background-color: white;
+    width: min(600px, 80%);
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 15px;
+}
+
+.search-bar .filter-sec .filter.active {
+    border-bottom: 4px solid #ff00db;
+    padding: 5px;
 }

@@ -175,10 +175,8 @@ async function initialLoading() {
         displayInMainPage("home");
     });
 
-    var network_icon = document.querySelector(".head .que-icon");
+    var network_icon = document.querySelector("i.que-sec-icon");
     network_icon.addEventListener("click", (event) => {
-        displayInMainPage("questions-page");
-        return;
         var ques_sec = document.querySelector(".practice-que-sec");
         if (ques_sec.classList.contains("hide")) {
             displayInMainPage("questions");
@@ -203,8 +201,9 @@ function setEventListnersForQuestionSection() {
         displayInMainPage("all-images");
     });
 
-    document.querySelector(".head .page-icon").addEventListener("click", () => {
-        displayInMainPage("me-page");
+    var filter_tag_input = document.querySelector(".practice-que-sec .filter-sec input ");
+    filter_tag_input.addEventListener("focus", (event) => {
+        setAutoComplete(event, all_tags, "que-filter-tags");
     });
 
     document.querySelector(".all-images .refresh-icon").addEventListener("click", () => {
@@ -327,7 +326,7 @@ function setEventListnersForQuestionSection() {
 
                         span2.classList.add("active");
                         showQuestion(que.id);
-                        displayInMainPage("questions-page");
+                        displayInMainPage("questions");
                     });
 
                     target.appendChild(div);
@@ -444,9 +443,6 @@ function getPageBlocks(uid) {
 }
 
 function loadInHomePage() {
-    var div = document.querySelector(".home-page");
-    div.innerHTML = '<h1 class="app-title">NEET FLIX</h1>';
-
     if (!student_data_array_me.username || student_data_array_me.username == "") {
         loadLoginUI();
         return;
@@ -454,25 +450,7 @@ function loadInHomePage() {
     loadAllNCERTChapters();
     loadAllPYQs();
     loadchapterWiseMCQs();
-    practiceQuestions();
     loadAboutMe();
-}
-function practiceQuestions() {
-    var div = document.createElement("div");
-    div.className = "ncert-chapters section";
-    document.querySelector(".home-page").appendChild(div);
-    div.innerHTML = `
-        <div class="head">
-            <i class="fa-regular fa-seal-question"></i>
-            <span class="text">Practise</span>
-            <i class="fa-regular fa-angle-down down-icon arrow-icon me-mla"></i>
-        </div>
-        <div class="chapter-list items hide"></div>
-    `;
-    div.querySelector(".head").addEventListener("click", () => {
-        showQuestion();
-        displayInMainPage("questions-page");
-    });
 }
 function loadAllNCERTChapters() {
     var div = document.createElement("div");
@@ -524,7 +502,7 @@ function loadAllNCERTChapters() {
             var x = openRoamPage(page.uid);
 
             if (x) return;
-            var x = document.querySelector(".notes-page .me-page-title");
+            var x = document.querySelector(".me-page .me-page-title");
             x.scrollIntoView({ behavior: "smooth" });
         });
     });
@@ -579,7 +557,7 @@ function loadAllPYQs() {
     });
 }
 function openPYQs(year) {
-    var page = document.querySelector(".questions-page");
+    var page = document.querySelector(".me-page");
     page.innerHTML = "";
     var all_ques = [];
     roam_data_array_me.questions.forEach((que) => {
@@ -629,7 +607,7 @@ function openPYQs(year) {
         }
     });
 
-    displayInMainPage("questions-page");
+    displayInMainPage("me-page");
 }
 
 function loadchapterWiseMCQs() {
@@ -683,7 +661,7 @@ function loadchapterWiseMCQs() {
 }
 
 function openChapterMCQs(page_uid) {
-    var page = document.querySelector(".questions-page");
+    var page = document.querySelector(".me-page");
     page.innerHTML = "";
     var all_ques = [];
     roam_data_array_me.questions.forEach((que) => {
@@ -735,7 +713,7 @@ function openChapterMCQs(page_uid) {
         }
     });
 
-    displayInMainPage("questions-page");
+    displayInMainPage("me-page");
 }
 
 function loadAboutMe() {
@@ -962,10 +940,7 @@ function openRoamPage(page_uid) {
     span.id = page.uid;
     span.textContent = page.title;
     me_page.appendChild(span);
-    if (!page || page == "") {
-        popupAlert("linked page not found");
-        return;
-    }
+
     page.blocks.forEach((block) => {
         addPageBlocks(block, me_page);
     });
@@ -1302,8 +1277,8 @@ function displayInMainPage(arg) {
     });
     if (arg == "home") {
         document.querySelector(".main-page .home-page").classList.remove("hide");
-    } else if (arg == "questions-page") {
-        document.querySelector(".main-page .questions-page").classList.remove("hide");
+    } else if (arg == "questions") {
+        document.querySelector(".main-page .practice-que-sec").classList.remove("hide");
     } else if (arg == "me-page") {
         document.querySelector(".main-page .me-page").classList.remove("hide");
     } else if (arg == "all-images") {
@@ -1327,17 +1302,9 @@ function showQuestion(id) {
         curr_que = filter_questions[curr_que_index];
     }
 
-    var div = document.querySelector(".questions-page");
+    var div = document.querySelector(".practice-que-sec");
     // adding question section HTML
-    var x = div.querySelector(".top");
-    if (!x) {
-        div.innerHTML = "";
-        div.appendChild(getQuestionSectionTopHTMLTemplate());
-    }
-    x = div.querySelector(".que-section");
-    if (x) x.remove();
-    div.appendChild(getQuestionSectionHTMLTemplate(curr_que));
-    //div.querySelector(".que-section").replaceWith(getQuestionSectionHTMLTemplate(curr_que));
+    div.querySelector(".que-section").replaceWith(getQuestionSectionHTMLTemplate(curr_que));
     // adding question and explanation text
     div.querySelector(".que-section .question").innerHTML = convertTextToHTML(curr_que.question_text);
     div.querySelector(".que-section .explanation").innerHTML = convertTextToHTML(curr_que.explanation);
@@ -1506,7 +1473,6 @@ function addLinkedQuestionSpan(que, target) {
     if (que.block_uid && que.block_uid != "") {
         span.classList.add("me-link");
         span.addEventListener("click", (event) => {
-            debugger;
             openAndScrollToBlock(que.page_uid, que.block_uid);
         });
     }
@@ -1519,10 +1485,8 @@ function openAndScrollToBlock(page_uid, block_uid) {
     } else {
         displayInMainPage("me-page");
     }
-    x = document.querySelector("me-page .me-focus-block");
-    if (x) x.classList.remove("me-focus-block");
-    var div = document.querySelector(`div[id="${block_uid}"]`);
 
+    var div = document.querySelector(`div[id="${block_uid}"]`);
     div.children[0].classList.add("me-focus-block");
     div.scrollIntoView({ behavior: "smooth" });
 
@@ -1979,10 +1943,4 @@ async function verifyLogin(username, password, type) {
             error.textContent = "Wrong username/password";
         }
     }
-}
-function getQuestionSectionTopHTMLTemplate() {
-    var div = document.createElement("div");
-    div.className = "que-sec top";
-    div.textContent = "Practise Questions";
-    return div;
 }

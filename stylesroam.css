@@ -419,7 +419,7 @@
 
 
 
-.normal.question::before {
+.questions-page .normal.question::before {
     content: 'Q: ';
 }
 
@@ -807,18 +807,7 @@ span.app-logo {
     height: auto;
 }
 
-.table-of-content-section {
-    z-index: 1000;
-    position: absolute;
-    display: block;
-    top: 23%;
-    right: 2%;
-    width: 300px;
 
-    background-color: rgb(224, 224, 224);
-    padding: 20px;
-    border-radius: 7px;
-}
 
 .mobile .table-of-content-section {
     width: 250px;
